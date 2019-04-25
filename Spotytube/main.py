@@ -113,7 +113,9 @@ def create_playlist_yt():
     # playlist_id = create_playlist(yt_token, 'Ed Sheeran')
 
     # add_video(yt_token, playlist_id, video_id)
-    return index()
+    return 'primer video:\n' + \
+           '<p> channel title: ' + str(best_video['snippet']['channelTitle']) + '</p>' + \
+           '<p> title: ' + str(best_video['snippet']['title']) + '</p>'
 
 
 @app.errorhandler(500)

@@ -147,7 +147,7 @@ def search_best_video(yt_token, track):
     if selected_video[1] >= 5:
         print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
         video_selected_dict = selected_video[0]
-        pprint.pprint(video_selected_dict)
+       
     return video_selected_dict
 
 
