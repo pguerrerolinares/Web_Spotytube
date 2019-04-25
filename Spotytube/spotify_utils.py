@@ -1,4 +1,26 @@
+import base64
 import requests
+
+# Consumer Api Keys Spotify
+consumer_key = 'cb169bdfb3884a03ba9c68932f87285b'
+consumer_secret = '5ad8b30856c64e569685769261fa2689'
+
+
+def request_token_spotify():
+    authorization = base64.standard_b64encode(consumer_key + ':' + consumer_secret)
+
+    headers = {'User-Agent': 'Google App Engine',
+               'Authorization': 'Basic {0}'.format(authorization)}
+    data = {'grant_type': 'client_credentials'}
+
+    spotify_token_url = 'https://accounts.spotify.com/api/token'
+
+    response = requests.post(spotify_token_url, headers=headers, data=data)
+
+    if response.status_code != 200:
+        print response.reason
+    token_info = response.json()
+    return token_info
 
 
 def request(spotify_token, url, data):
