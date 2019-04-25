@@ -126,10 +126,39 @@ def _print_playlists(list_playlist):
 def show_tracks():
     spotify_token = session['spotify_token']['access_token']
     playlist2search = request.args.get("id")
-    print playlist2search
-    flash('Your password has been reset.')
-    template_playlist_names = session.get('playlist_names')
-    return render_template('header.html', template_selector=1)
+
+    tracks = search_playlists(spotify_token, playlist2search)
+    _print_tracks(tracks)
+    template_tracks = session.get('tracks_names')
+
+    return render_template('header.html', tracks_names=template_tracks, template_selector=1)
+
+
+def _print_tracks(tracks):
+    session['tracks_names'] = []
+    for track in tracks:
+        current_track = track['track']
+        # pprint.pprint(current_track)
+        array = []
+        array.append(current_track['name'])
+
+        track_artists = []
+        for artist in current_track['artists']:
+            track_artists.append(artist['name'])
+        featured_artists = ';'.join(track_artists)
+        artist = featured_artists.split(';')[0]
+        array.append(artist)
+
+        album_artists = []
+        for artist in current_track['album']['artists']:
+            album_artists.append(artist['name'])
+        array.append(album_artists)
+
+        array.append(current_track['duration_ms'])
+        array.append(current_track['album']['images'][0]['url'])
+        array.append(current_track['preview_url'])
+
+        session['tracks_names'].append(array)
 
 
 @app.route('/SearchSpotify', methods=['GET'])
