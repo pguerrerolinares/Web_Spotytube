@@ -2,6 +2,7 @@
 
 
 # [START app]
+import isodate as isodate
 import pprint
 import time
 import logging
@@ -11,13 +12,14 @@ from jinja_utils import print_playlists, print_tracks
 from spotify_utils import get_tracks_from_playlist, search_playlists, request_token_spotify
 import requests_toolbelt.adapters.appengine
 from flask import Flask, session, render_template, request, redirect
-from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, add_video, search_video
+from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, add_video, search_best_video
 
 # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
+template_tracks = None
 
 
 @app.route('/')
@@ -73,6 +75,7 @@ def show_tracks():
             playlist_name = playlist[0]
 
     tracks = get_tracks_from_playlist(spotify_token, playlist2search)
+    global template_tracks
     template_tracks = print_tracks(tracks)
     return render_template('header.html', playlist_name=playlist_name, tracks_names=template_tracks,
                            template_selector=1)
@@ -80,10 +83,14 @@ def show_tracks():
 
 @app.route('/LoginGoogle', methods=['GET'])
 def login_google():
-    response = request_code_youtube()
-    print response
-    if response.status_code == 200:
-        return redirect(str(response.url))
+    yt_token = session.get('yt_token')
+    if yt_token is None:
+        # Si no hay token
+        response = request_code_youtube()
+        if response.status_code == 200:
+            return redirect(str(response.url))
+    else:
+        return create_playlist_yt()
 
 
 @app.route('/oauth2callback')
@@ -99,8 +106,12 @@ def oauthcallback_google():
 @app.route('/Playlist')
 def create_playlist_yt():
     yt_token = session.get('yt_token')
+    # pruebas, solo el primer video
+    track_num1 = template_tracks[0]
+    best_video = search_best_video(yt_token, track_num1)
+    pprint.pprint(best_video)
     # playlist_id = create_playlist(yt_token, 'Ed Sheeran')
-    # video_id = search_video(yt_token, 'Perfect')
+
     # add_video(yt_token, playlist_id, video_id)
     return index()
 

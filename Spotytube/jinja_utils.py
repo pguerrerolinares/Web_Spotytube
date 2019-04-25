@@ -21,7 +21,7 @@ def print_tracks(tracks):
     0 -> nombre canción
     1 -> nombre artista
     2 -> nombres de artistas
-    3 -> duración(ms)
+    3 -> duración(s)
     4 -> url imagen
     5 -> url preview song
     :param tracks:
@@ -46,7 +46,7 @@ def print_tracks(tracks):
             album_artists.append(artist['name'])
         array.append(album_artists)
 
-        array.append(current_track['duration_ms'])
+        array.append(current_track['duration_ms'] / 1000)
         array.append(current_track['album']['images'][0]['url'])
         array.append(current_track['preview_url'])
 

@@ -1,4 +1,6 @@
+# coding=utf-8
 # Google keys
+import isodate
 import json
 import pprint
 import re
@@ -7,7 +9,7 @@ import urllib
 
 google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
 client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
-prefix_yt = "https://www.googleapis.com/youtube/v3"
+prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
 
 def request_code_youtube():
@@ -51,22 +53,36 @@ def request_token_youtube(code):
     return json_respuesta['access_token']
 
 
-def search_video(yt_token, query):
+def _search_video_query(yt_token, query):
     params = {'part': 'snippet,id',
               'order': 'relevance',
               'q': re.sub(r'\((feat.|)(.*?)\)', '', query),
-              'maxResults': 50,
+              'maxResults': 10,
               'type': 'video'}
-    params_encoded = urllib.urlencode(params)
 
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
                'Accept': 'application/json'}
 
     response = requests.get(prefix_yt + "search", headers=headers,
+                            params=params)
+
+    json_respuesta = json.loads(response.content)
+    items = json_respuesta['items']
+    return items
+
+
+def _search_video_id(yt_token, videos_ids):
+    params = {'part': 'contentDetails',
+              'id': ','.join(videos_ids)}
+    params_encoded = urllib.urlencode(params)
+
+    headers = {'Authorization': 'Bearer {0}'.format(yt_token),
+               'Accept': 'application/json'}
+
+    response = requests.get(prefix_yt + "videos", headers=headers,
                             params=params_encoded)
 
     json_respuesta = json.loads(response.content)
-    pprint.pprint(json_respuesta)
     items = json_respuesta['items']
     return items
 
@@ -103,3 +119,131 @@ def add_video(yt_token, playlist_id, video_id):
     jsondata = json.dumps(data)
     return requests.post('https://www.googleapis.com/youtube/v3/playlistItems?' + params_encoded,
                          headers=headers, data=jsondata)
+
+
+def search_best_video(yt_token, track):
+    artist = 1
+    name = 0
+    query = '{0} - {1}'.format(track[artist], track[name])
+    video_selected_dict = {}
+    items1 = _search_video_query(yt_token, query)
+    videos_ids = []
+    for video in items1:
+        videos_ids.append(video['id']['videoId'])
+    items2 = _search_video_id(yt_token, videos_ids)
+
+    selected_video = [{}, -100]
+
+    for i in range(0, len(items1)):
+        video1 = items1[i]
+        video2 = items2[i]
+        duration = video2['contentDetails']['duration']
+        video1.__setitem__('duration', isodate.parse_duration(duration).total_seconds())
+        video_points = _attribute_meta_points(track, video1)
+
+        if video_points > selected_video[1]:
+            selected_video = [video1, video_points]
+
+    if selected_video[1] >= 5:
+        print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
+        video_selected_dict = selected_video[0]
+        pprint.pprint(video_selected_dict)
+    return video_selected_dict
+
+
+def _attribute_meta_points(track, video):
+    points = 0
+    artist = 1
+    name = 0
+    duration = 3
+    title = re.sub(r'[^\w\s]', '', video['snippet']['title'].lower())
+    title = re.sub(r'\((feat.|)(.*?)\)', '', title).replace('  ', ' ')
+    fx_artist_name = re.sub(r'[^\w\s]', '', track[artist].lower())
+    fx_track_name = re.sub(r'[^\w\s]', '', track[name].lower())
+    fx_track_name = re.sub(r'\((feat.|)(.*?)\)', '', fx_track_name).replace('  ', ' ')
+    fx_channel_name = re.sub(r'[^\w\s]', '', video['snippet']['channelTitle'].lower())
+    '''
+    print fx_artist_name
+    print fx_track_name
+    print fx_channel_name
+    print title
+    '''
+    # titutlo del video tiene nomre de la canción
+    if fx_track_name in title:
+        points += 3
+    else:
+        points -= 30
+
+    # titulo del video tiene el nombre del artista
+    if fx_artist_name in title:
+        points += 3
+
+    # titulo del video tiene "official, oficial, ..."
+    if re.search(r'of(f|)ici([ae])l', title):
+        points += 6
+
+    if re.search(r'unof(f|)ici([ae])l', title):
+        points -= 6
+
+    if re.search(r'of(f|)ici([ae])l audio', title):
+        if 'remix' not in fx_track_name and 'remix' in title:
+            points += 6
+        else:
+            points += 6
+
+    if re.search(r'of(f|)ici([ae])l video', title):
+        if 'remix' not in fx_track_name and 'remix' in title:
+            points += 2
+        else:
+            points += 20
+
+    if re.search(r'unof(f|)ici([ae])l audio', title):
+        points -= 9
+
+    if re.search(r'of(f|)ici([ae])l music (video|)', title):
+        points += 15
+
+    if re.search(r'unof(f|)ici([ae])l music (video|)', title):
+        points -= 20
+
+    if re.search(r'{0}(\s|)([:\-])(\s|){1}'.format(fx_artist_name, fx_track_name), title):
+        points += 12
+
+    if re.search(r'{0}(\s|)([:\-])(\s|){1}'.format(fx_track_name, fx_artist_name), title):
+        points += 12
+
+    if 'live' not in fx_track_name and 'live' in title:
+        points -= 40
+
+    if 'cover' not in fx_track_name and 'cover' in title:
+        points -= 50
+
+    if 'acoustic' not in fx_track_name and 'acoustic' in title:
+        points -= 30
+
+    if 'edit' not in fx_track_name and 'edit' in title:
+        points -= 3
+
+    if 'remix' not in fx_track_name and 'remix' in title:
+        points -= 6
+
+    if 'instrumental' not in fx_track_name and 'instrumental' in title:
+        points -= 12
+
+    if 'piano sheet' not in fx_track_name and 'piano sheet' in title:
+        points -= 12
+
+    # nombre del canal coincide con el artista
+    if re.sub(r'[\W]+', '', video['snippet']['channelTitle'].lower()) == re.sub(r'[\W]+', '', fx_artist_name):
+        points += 12
+
+    if fx_channel_name == fx_artist_name + ' - topic':
+        points += 9
+
+    if fx_channel_name == fx_artist_name + 'vevo':
+        points += 9
+
+    dur_diff = int(video['duration'] - track[duration])
+    points -= abs(dur_diff)
+
+    return points
