@@ -22,17 +22,23 @@
         <div class='pre-awesome-line'></div>
 
         <section class="content wrapper">
-            <div class="rectangle">
-                <div class="row">
-                    <div class="columnImage">
-                        <img class="imageSongs" src="/img/spotytube.jpg">
-                    </div>
-                    <div class="columnSongs">
-                        <h2 class="nameSong">Nombre cancion</h2>
-                        <h3 class="artistSong">Artistas</h3>
+            {% for content in tracks_names %}
+                <div class="rectangle">
+                    <div class="row">
+                        <div class="columnImage">
+                            <img class="imageSongs" src={{ content[4] }}>
+
+                        </div>
+                        <div class="columnSongs">
+                            <h2 class="nameSong">{{ content[0] }}</h2>
+                            <h3 class="artistSong">{{ content[1] }}</h3>
+                            <audio controls>
+                                <source src={{ content[5] }} >
+                            </audio>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         </section>
 
 
@@ -40,3 +46,4 @@
 </div>
 </body>
 </html>
+
