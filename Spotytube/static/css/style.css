@@ -243,3 +243,19 @@ audio {
     height: 24px;
 }
 
+.btnContainerSongs button {
+    border: none; /* Remove borders */
+    color: white; /* Add a text color */
+    padding: 14px 28px; /* Add some padding */
+    cursor: pointer; /* Add a pointer cursor on mouse-over */
+    background-color: #4CAF50;
+    margin-top: 10%;
+    margin-bottom: 10%;
+    margin-right: 15%;
+}
+
+.columnButtons {
+    float: left;
+    width: 30%;
+    padding-right: 1%;
+}
