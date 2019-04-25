@@ -1,10 +1,13 @@
 # Google keys
 import json
+import pprint
+import re
 import requests
 import urllib
 
 google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
 client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
+prefix_yt = "https://www.googleapis.com/youtube/v3"
 
 
 def request_code_youtube():
@@ -48,22 +51,24 @@ def request_token_youtube(code):
     return json_respuesta['access_token']
 
 
-def search_track(yt_token, tittle):
-    params = {'part': 'snippet',
+def search_video(yt_token, query):
+    params = {'part': 'snippet,id',
               'order': 'relevance',
-              'q': tittle,
+              'q': re.sub(r'\((feat.|)(.*?)\)', '', query),
+              'maxResults': 50,
               'type': 'video'}
     params_encoded = urllib.urlencode(params)
 
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
                'Accept': 'application/json'}
 
-    response = requests.get("https://www.googleapis.com/youtube/v3/search", headers=headers,
+    response = requests.get(prefix_yt + "search", headers=headers,
                             params=params_encoded)
 
     json_respuesta = json.loads(response.content)
+    pprint.pprint(json_respuesta)
     items = json_respuesta['items']
-    return items[0]['id']['videoId']
+    return items
 
 
 def create_playlist(yt_token, name):
@@ -76,13 +81,13 @@ def create_playlist(yt_token, name):
 
     data = {'snippet': {'title': name}}
     jsondata = json.dumps(data)
-    response = requests.post('https://www.googleapis.com/youtube/v3/playlists?' + params_encoded,
+    response = requests.post(prefix_yt + 'playlists?' + params_encoded,
                              headers=headers, data=jsondata)
     json_respuesta = json.loads(response.content)
     return json_respuesta['id']
 
 
-def add_track(yt_token, playlist_id, video_id):
+def add_video(yt_token, playlist_id, video_id):
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
                'Accept': 'application/json',
                'Content-Type': 'application/json'}

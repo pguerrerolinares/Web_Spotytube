@@ -4,11 +4,13 @@
 # [START app]
 import time
 import logging
+import pprint
+
 from jinja_utils import print_playlists, print_tracks
 from spotify_utils import get_tracks_from_playlist, search_playlists, request_token_spotify
 import requests_toolbelt.adapters.appengine
 from flask import Flask, session, render_template, request, redirect
-from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, search_track, add_track
+from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, add_video, search_video
 
 # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -65,7 +67,7 @@ def show_tracks():
 
     tracks = get_tracks_from_playlist(spotify_token, playlist2search)
     template_tracks = print_tracks(tracks)
-
+    pprint.pprint(template_tracks)
     return render_template('header.html', tracks_names=template_tracks, template_selector=1)
 
 
@@ -89,8 +91,8 @@ def oauthcallback_google():
 def create_playlist_yt():
     yt_token = session.get('yt_token')
     playlist_id = create_playlist(yt_token, 'Ed Sheeran')
-    video_id = search_track(yt_token, 'Perfect')
-    add_track(yt_token, playlist_id, video_id)
+    video_id = search_video(yt_token, 'Perfect')
+    add_video(yt_token, playlist_id, video_id)
 
 
 @app.errorhandler(500)
