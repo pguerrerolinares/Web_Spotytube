@@ -2,6 +2,7 @@
 
 
 # [START app]
+import pprint
 import time
 import logging
 from jinja_utils import print_playlists, print_tracks
@@ -53,6 +54,7 @@ def search_spotify():
             to_search = request.args.get('search')
             list_playlist = search_playlists(spotify_token, to_search)
             template_playlist_names = print_playlists(list_playlist)
+            session['playlist_names'] = template_playlist_names
 
     return render_template('header.html', playlist_names=template_playlist_names,
                            template_selector=0)
@@ -62,16 +64,22 @@ def search_spotify():
 def show_tracks():
     spotify_token = session['spotify_token']['access_token']
     playlist2search = request.args.get("id")
+    playlist_names = session.get('playlist_names')
+    playlist_name = ''
+    for playlist in playlist_names:
+        if playlist[2] == playlist2search:
+            playlist_name = playlist[0]
 
     tracks = get_tracks_from_playlist(spotify_token, playlist2search)
     template_tracks = print_tracks(tracks)
 
-    return render_template('header.html', tracks_names=template_tracks, template_selector=1)
+    return render_template('header.html', playlist_name=playlist_name, tracks_names=template_tracks, template_selector=1)
 
 
-@app.route('/LoginGoogle')
+@app.route('/LoginGoogle', methods=['GET'])
 def login_google():
     response = request_code_youtube()
+    print response
     if response.status_code == 200:
         return redirect(str(response.url))
 
@@ -82,8 +90,8 @@ def oauthcallback_google():
     code = request.args.get('code')
     access_token = request_token_youtube(code)
     session['yt_token'] = access_token
-    redirect('/')
-
+    print 'token'
+    pprint.pprint(access_token)
 
 @app.route('/Playlist')
 def create_playlist_yt():
