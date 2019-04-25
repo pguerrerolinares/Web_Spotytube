@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <title>SpotyTube</title>
+
+    <link rel="stylesheet" href="/static/css/style.css" type="text/css"/>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js'></script>
+
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uh3+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+    <script type="text/javascript">
+        function RedirectURL(idSong) {
+            window.location = createDynamicURL(idSong);
+        }
+
+        function createDynamicURL(idSong) {
+            return '/ShowTracks?id=' + idSong;
+
+        }
+
+
+    </script>
+
+</head>
+
+
+<body>
+
+<div class="wrapper">
+
+    <div class="st-wrapper">
+
+        <h1 class='st-tittle'><img class="image" src="/static/images/spotytube.png"></h1>
+        <div class='pre-awesome-line'></div>
+
+        <section class="content wrapper">
+            <div class="box">
+                <div class="container-1">
+                    <span class="icon"><i class="fas fa-search"></i></span>
+                    <form action="/SearchSpotify" method="get">
+                        <input type="search" name="search" id="search" placeholder="Search..."/>
+                        <div class="row">
+                            <div class="columnRadio">
+                                <input type="radio" name="typesearch" value="url"> Url<br>
+                            </div>
+                            <div class="columnRadio">
+                                <input type="radio" name="typesearch" value="name" checked> Name<br>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row">
+            </div>
+        </section>
+
+
+        {% if playlist_names %}
+            {% for content in playlist_names %}
+                <div class="column">
+                    <div class="card">
+                        <img class="image" src={{ content[1] }} alt={{ content[0] }} style="width: 300px;height:300px;">
+                        <div class="container">
+                            <h3>{{ content[0] }}</h3>
+                            <p>
+                            <form class="btnContainer" action="/ShowTrack" method="get">
+                                <a href="#" id={{ content[2] }}  onclick="RedirectURL(this.id)">
+                                    <button type="button">Choose
+                                    </button>
+                                </a>
+                            </form>
+
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+    </div>
+</div>
+</body>
+</html>
