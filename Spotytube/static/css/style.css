@@ -4,12 +4,11 @@
 }
 
 body {
-    font-family: 'Montserrat', "Noto Sans Tibetan";
+    font-family: 'Raleway', "Noto Sans Tibetan";
     background-color: #131313;
     color: white;
     overflow-y: scroll;
 }
-
 
 .st-tittle {
     font-family: 'Raleway';

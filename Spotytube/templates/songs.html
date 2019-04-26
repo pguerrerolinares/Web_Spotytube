@@ -1,18 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-
-    <title>SpotyTube</title>
-
-    <link rel="stylesheet" href="/static/css/style.css" type="text/css"/>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js'></script>
-
-    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
-          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uh3+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-</head>
-
 <script type="text/javascript">
     function toIndex() {
         window.location = '/';
@@ -31,8 +16,6 @@
         return '/LoginGoogle?id=' + idSong;
 
     }
-
-
 </script>
 
 <body>
@@ -65,7 +48,7 @@
             <div class="row">
                 <div class="columnButtons">
                     <form class="btnContainerSongs" action="/LoginGoogle" method="get">
-                        <a href="#" id='add'  onclick="RedirectURL(this.id)">
+                        <a href="#" id='add' onclick="RedirectURL(this.id)">
                             <button type="button">Choose
                             </button>
                         </a>

@@ -2,8 +2,6 @@
 
 
 # [START app]
-import isodate as isodate
-import pprint
 import time
 import logging
 import pprint

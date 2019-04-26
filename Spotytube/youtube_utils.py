@@ -49,42 +49,63 @@ def request_token_youtube(code):
     response = requests.post("https://www.googleapis.com/oauth2/v4/token", headers=headers, data=data)
 
     json_respuesta = json.loads(response.content)
-    # print json_respuesta
     return json_respuesta['access_token']
 
 
-def _search_video_query(yt_token, query):
-    params = {'part': 'snippet,id',
-              'order': 'relevance',
-              'q': re.sub(r'\((feat.|)(.*?)\)', '', query),
-              'maxResults': 10,
-              'type': 'video'}
-
+def _request(yt_token, url, data):
+    """
+    :param yt_token:
+    :param url:
+    :param data:
+    :return:
+    """
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
-               'Accept': 'application/json'}
+               'Content-Type': 'application/json'}
 
-    response = requests.get(prefix_yt + "search", headers=headers,
-                            params=params)
+    data = dict(params=data)
+    response = requests.get(url, headers=headers, **data)
+    if response.text and len(response.text) > 0 and response.text != 'null':
+        return response.json()
+    else:
+        return None
 
-    json_respuesta = json.loads(response.content)
-    items = json_respuesta['items']
-    return items
+
+def _get(yt_token, url, **kwargs):
+    """
+    :param yt_token:
+    :param url:
+    :param kwargs:
+    :return:
+    """
+    return _request(yt_token, url, kwargs)
 
 
-def _search_video_id(yt_token, videos_ids):
-    params = {'part': 'contentDetails',
-              'id': ','.join(videos_ids)}
-    params_encoded = urllib.urlencode(params)
+def _search_video_query(yt_token, query, part='snippet,id', order='relevance', type='video', maxResults=10):
+    """
+    :param yt_token:
+    :param query:
+    :param part:
+    :param order:
+    :param type:
+    :param maxResults:
+    :param id:
+    :return:
+    """
+    query = re.sub(r'\((feat.|)(.*?)\)', '', query)
+    return _get(yt_token, prefix_yt + 'search', q=query, part=part, order=order,
+                type=type, maxResults=maxResults)['items']
 
-    headers = {'Authorization': 'Bearer {0}'.format(yt_token),
-               'Accept': 'application/json'}
 
-    response = requests.get(prefix_yt + "videos", headers=headers,
-                            params=params_encoded)
-
-    json_respuesta = json.loads(response.content)
-    items = json_respuesta['items']
-    return items
+def _search_videos_id(yt_token, videos_ids, part='contentDetails', id=None):
+    """
+    :param yt_token:
+    :param videos_ids:
+    :param part:
+    :param id:
+    :return:
+    """
+    id = ','.join(videos_ids)
+    return _get(yt_token, prefix_yt + 'videos', part=part, id=id)['items']
 
 
 def create_playlist(yt_token, name):
@@ -117,7 +138,7 @@ def add_video(yt_token, playlist_id, video_id):
                         }
             }
     jsondata = json.dumps(data)
-    return requests.post('https://www.googleapis.com/youtube/v3/playlistItems?' + params_encoded,
+    return requests.post(prefix_yt + 'playlistItems?' + params_encoded,
                          headers=headers, data=jsondata)
 
 
@@ -130,7 +151,7 @@ def search_best_video(yt_token, track):
     videos_ids = []
     for video in items1:
         videos_ids.append(video['id']['videoId'])
-    items2 = _search_video_id(yt_token, videos_ids)
+    items2 = _search_videos_id(yt_token, videos_ids)
 
     selected_video = [{}, -100]
 
@@ -147,7 +168,7 @@ def search_best_video(yt_token, track):
     if selected_video[1] >= 5:
         print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
         video_selected_dict = selected_video[0]
-       
+
     return video_selected_dict
 
 
@@ -162,12 +183,7 @@ def _attribute_meta_points(track, video):
     fx_track_name = re.sub(r'[^\w\s]', '', track[name].lower())
     fx_track_name = re.sub(r'\((feat.|)(.*?)\)', '', fx_track_name).replace('  ', ' ')
     fx_channel_name = re.sub(r'[^\w\s]', '', video['snippet']['channelTitle'].lower())
-    '''
-    print fx_artist_name
-    print fx_track_name
-    print fx_channel_name
-    print title
-    '''
+
     # titutlo del video tiene nomre de la canción
     if fx_track_name in title:
         points += 3

@@ -4,6 +4,7 @@ import requests
 # Consumer Api Keys Spotify
 consumer_key = 'cb169bdfb3884a03ba9c68932f87285b'
 consumer_secret = '5ad8b30856c64e569685769261fa2689'
+prefix = 'https://api.spotify.com/v1/'
 
 
 def request_token_spotify():
@@ -23,7 +24,7 @@ def request_token_spotify():
     return token_info
 
 
-def request(spotify_token, url, data):
+def _request(spotify_token, url, data):
     """
     :param spotify_token: 
     :param url: 
@@ -41,17 +42,17 @@ def request(spotify_token, url, data):
         return None
 
 
-def get(spotify_token, url, **kwargs):
+def _get(spotify_token, url, **kwargs):
     """
     :param spotify_token:
     :param url:
     :param kwargs:
     :return:
     """
-    return request(spotify_token, url, kwargs)
+    return _request(spotify_token, url, kwargs)
 
 
-def search(spotify_token, query, limit=10, offset=0, type='track', market=None):
+def _search(spotify_token, query, limit=10, offset=0, type='track', market=None):
     """
     :param spotify_token:
     :param query:
@@ -61,8 +62,8 @@ def search(spotify_token, query, limit=10, offset=0, type='track', market=None):
     :param market:
     :return:
     """
-    return get(spotify_token, 'https://api.spotify.com/v1/search', q=query, limit=limit, offset=offset,
-               type=type, market=market)
+    return _get(spotify_token, prefix + 'search', q=query, limit=limit, offset=offset,
+                type=type, market=market)
 
 
 def search_playlists(spotify_token, playlist):
@@ -71,7 +72,7 @@ def search_playlists(spotify_token, playlist):
     :param playlist:
     :return:
     """
-    items = search(spotify_token, query=playlist, type='playlist', limit=9, market='ES', offset=0)
+    items = _search(spotify_token, query=playlist, type='playlist', limit=9, market='ES', offset=0)
     if len(items) > 0:
         return items
 
@@ -87,11 +88,11 @@ def playlist_tracks(spotify_token, playlist_id=None, fields=None,
     :param market:
     :return:
     """
-    plid = extract_spotify_id(playlist_id)
+    plid = _extract_spotify_id(playlist_id)
 
-    return get(spotify_token, "https://api.spotify.com/v1/playlists/{0}/tracks".format(plid),
-               limit=limit, offset=offset, fields=fields,
-               market=market)
+    return _get(spotify_token, prefix + "playlists/{0}/tracks".format(plid),
+                limit=limit, offset=offset, fields=fields,
+                market=market)
 
 
 def get_tracks_from_playlist(spotify_token, playlist_url):
@@ -103,7 +104,7 @@ def get_tracks_from_playlist(spotify_token, playlist_url):
     return playlist_tracks(spotify_token, playlist_url, fields="items")['items']
 
 
-def extract_spotify_id(raw_string):
+def _extract_spotify_id(raw_string):
     """
     :param raw_string:
     :return:

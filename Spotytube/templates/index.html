@@ -1,32 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
+<script type="text/javascript">
+    function RedirectURL(idSong) {
+        window.location = createDynamicURL(idSong);
+    }
 
-    <title>SpotyTube</title>
+    function createDynamicURL(idSong) {
+        return '/ShowTracks?id=' + idSong;
 
-    <link rel="stylesheet" href="/static/css/style.css" type="text/css"/>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js'></script>
-
-    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
-          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uh3+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
-    <script type="text/javascript">
-        function RedirectURL(idSong) {
-            window.location = createDynamicURL(idSong);
-        }
-
-        function createDynamicURL(idSong) {
-            return '/ShowTracks?id=' + idSong;
-
-        }
-
-
-    </script>
-
-</head>
-
+    }
+</script>
 
 <body>
 
