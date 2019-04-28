@@ -1,4 +1,7 @@
 # coding=utf-8
+import pprint
+
+
 def print_playlists(list_playlist):
     playlist_names = []
     if list_playlist['playlists']['next'] is not None:
@@ -51,5 +54,4 @@ def print_tracks(tracks):
         array.append(current_track['preview_url'])
 
         tracks_names.append(array)
-
     return tracks_names

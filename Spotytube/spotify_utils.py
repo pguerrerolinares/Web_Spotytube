@@ -52,7 +52,7 @@ def _get(spotify_token, url, **kwargs):
     return _request(spotify_token, url, kwargs)
 
 
-def _search(spotify_token, query, limit=10, offset=0, type='track', market=None):
+def _search(spotify_token, query, limit=10, offset=0, type=None, market=None):
     """
     :param spotify_token:
     :param query:
@@ -72,9 +72,7 @@ def search_playlists(spotify_token, playlist):
     :param playlist:
     :return:
     """
-    items = _search(spotify_token, query=playlist, type='playlist', limit=9, market='ES', offset=0)
-    if len(items) > 0:
-        return items
+    return _search(spotify_token, query=playlist, type='playlist', limit=9, market='ES', offset=0)
 
 
 def playlist_tracks(spotify_token, playlist_id=None, fields=None,
@@ -90,7 +88,7 @@ def playlist_tracks(spotify_token, playlist_id=None, fields=None,
     """
     plid = _extract_spotify_id(playlist_id)
 
-    return _get(spotify_token, prefix + "playlists/{0}/tracks".format(plid),
+    return _get(spotify_token, prefix + 'playlists/{0}/tracks'.format(plid),
                 limit=limit, offset=offset, fields=fields,
                 market=market)
 
@@ -102,6 +100,11 @@ def get_tracks_from_playlist(spotify_token, playlist_url):
     :return:
     """
     return playlist_tracks(spotify_token, playlist_url, fields="items")['items']
+
+
+def get_playlist(spotify_token, playlist_url):
+    plid = _extract_spotify_id(playlist_url)
+    return _get(spotify_token, prefix + 'playlists/{0}'.format(plid), market='ES')
 
 
 def _extract_spotify_id(raw_string):

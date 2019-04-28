@@ -5,16 +5,8 @@
 
 body {
     font-family: 'Raleway', "Noto Sans Tibetan";
-    background-color: #131313;
-    color: white;
+    background-color: #0e0e0e;
     overflow-y: scroll;
-}
-
-.st-tittle {
-    font-family: 'Raleway';
-    color: #FF5A09;
-    font-size: 48px;
-    margin-top: 1.5em;
 }
 
 
@@ -52,7 +44,7 @@ body {
     border: none;
     font-size: 10pt;
     float: left;
-    color: #63717f;
+    color: #9a9a9a;
     padding-left: 45px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -63,15 +55,6 @@ body {
     transition: background .55s ease;
 }
 
-
-.container-1 .icon {
-    position: absolute;
-    top: 50%;
-    margin-left: 40%;
-    margin-top: 17px;
-    z-index: 1;
-    color: #4f5b66;
-}
 
 .container-1 input#search:hover, .container-1 input#search:focus, .container-1 input#search:active {
     outline: none;
@@ -190,9 +173,7 @@ body {
     /*background-color: #555;*/
     width: 90%;
     height: 120px;
-    background: #2b303b;
-    border: none;
-    color: #63717f;
+    background: #000000;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
@@ -216,7 +197,7 @@ body {
 
 .artistSong {
     font-family: 'Raleway';
-    color: #737374;
+    color: #a0a0a1;
     font-size: 12px;
     text-align: left;
     margin-top: 1%;
