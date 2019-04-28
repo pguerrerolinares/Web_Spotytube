@@ -7,10 +7,12 @@ import re
 import requests
 import urllib
 
-google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
-client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
+#google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
+#client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
 prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
+client_id = "990115409802-2ui236qmc7om12c8b2hm65ad8cakmqmb.apps.googleusercontent.com"
+google_secret_key = "U288IasNakebHr3cQDyWYz0v"
 
 def request_code_youtube():
     # Enviar una solicitud de autenticacion a google
@@ -47,6 +49,7 @@ def request_token_youtube(code):
         'grant_type': 'authorization_code'
     }
     response = requests.post("https://www.googleapis.com/oauth2/v4/token", headers=headers, data=data)
+    pprint.pprint(response.content)
 
     json_respuesta = json.loads(response.content)
     return json_respuesta['access_token']
@@ -121,6 +124,7 @@ def create_playlist(yt_token, name):
     response = requests.post(prefix_yt + 'playlists?' + params_encoded,
                              headers=headers, data=jsondata)
     json_respuesta = json.loads(response.content)
+    print json_respuesta
     return json_respuesta['id']
 
 
@@ -166,7 +170,7 @@ def search_best_video(yt_token, track):
             selected_video = [video1, video_points]
 
     if selected_video[1] >= 5:
-        print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
+        #print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
         video_selected_dict = selected_video[0]
 
     return video_selected_dict

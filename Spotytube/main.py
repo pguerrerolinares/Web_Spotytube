@@ -65,6 +65,7 @@ def search_spotify():
 
 @app.route('/ShowTracks', methods=['GET'])
 def show_tracks(to_search=None):
+    global selected_playlist_name
     spotify_token = session['spotify_token']['access_token']
     if to_search is None:
         playlist2search = request.args.get("id")
@@ -73,6 +74,7 @@ def show_tracks(to_search=None):
         for playlist in playlist_names:
             if playlist[2] == playlist2search:
                 playlist_name = playlist[0]
+                selected_playlist_name = playlist_name
 
         tracks = get_tracks_from_playlist(spotify_token, playlist2search)
 
@@ -121,16 +123,20 @@ def oauthcallback_google():
 @app.route('/Playlist')
 def create_playlist_yt():
     yt_token = session.get('yt_token')
+    playlist_id = create_playlist(yt_token, selected_playlist_name)
     # pruebas, solo el primer video
-    track_num1 = template_tracks[0]
-    best_video = search_best_video(yt_token, track_num1)
-    pprint.pprint(best_video)
-    # playlist_id = create_playlist(yt_token, 'Ed Sheeran')
+    #track_num1 = template_tracks[0]
+    for track in template_tracks:
+        #pprint.pprint(track)
+        best_video = search_best_video(yt_token, track)
+        video_id = best_video['id']['videoId']
+        add_video(yt_token, playlist_id, video_id)
 
-    # add_video(yt_token, playlist_id, video_id)
-    return 'primer video:\n' + \
-           '<p> channel title: ' + str(best_video['snippet']['channelTitle']) + '</p>' + \
-           '<p> title: ' + str(best_video['snippet']['title']) + '</p>'
+    #return 'primer video:\n' + \
+    #       '<p> channel title: ' + str(best_video['snippet']['channelTitle']) + '</p>' + \
+    #       '<p> title: ' + str(best_video['snippet']['title']) + '</p>'
+
+    return 'Hecho'
 
 
 @app.errorhandler(500)
