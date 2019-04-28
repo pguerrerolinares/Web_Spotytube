@@ -122,44 +122,13 @@ body {
     }
 }
 
-/* Add some shadows to create a card effect */
-.card {
-    position: relative;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-}
-
-/* Some left and right padding inside the container */
-.container {
-    padding: 0 16px;
-}
-
-/* Clear floats */
-.container::after, .row::after {
-    content: "";
-    clear: both;
-    display: table;
-}
-
-.title {
-    color: grey;
-}
 
 .btnContainer button {
     border: none; /* Remove borders */
     color: white; /* Add a text color */
-    padding: 14px 28px; /* Add some padding */
+    padding: 8px 36px; /* Add some padding */
     cursor: pointer; /* Add a pointer cursor on mouse-over */
     background-color: #4CAF50;
-}
-
-.button:hover {
-    background-color: #46a049;
-
-}
-
-/* When you mouse over the container, fade in the overlay title */
-.card:hover .overlay {
-    opacity: 1;
 }
 
 .image {
