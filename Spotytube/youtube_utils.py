@@ -8,12 +8,12 @@ import re
 import requests
 import urllib
 
-# google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
-# client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
+google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
+client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
 prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
-client_id = "990115409802-2ui236qmc7om12c8b2hm65ad8cakmqmb.apps.googleusercontent.com"
-google_secret_key = "U288IasNakebHr3cQDyWYz0v"
+#client_id = "990115409802-2ui236qmc7om12c8b2hm65ad8cakmqmb.apps.googleusercontent.com"
+#google_secret_key = "U288IasNakebHr3cQDyWYz0v"
 
 
 def request_code_youtube():
@@ -192,12 +192,10 @@ def search_best_video_scrapping(track):
     hd = "&sp=EgIQAQ%253D%253D"
     t = title.replace('%', '%25').replace(' ', '%20').replace('&', '%26').replace('/', '%2F')
     url = 'https://www.youtube.com/results?search_query=' + t + hd + '&sp=EgIQAQ%253D%253D'
-    print url
     items = requests.get(url).content
 
     items_parse = BeautifulSoup(items, "html.parser")
 
-    pprint.pprint(items_parse)
     max_attribute_point = -100
 
     best_video = None
@@ -205,8 +203,10 @@ def search_best_video_scrapping(track):
             "div", {"class": "yt-lockup-dismissable yt-uix-tile"}
     ):
         y = x.find("div", class_="yt-lockup-content")
-        link = y.find("a")["href"][-11:]
 
+        link = y.find("a")["href"][-11:]
+        z = y.find("a", class_="yt-uix-sessionlink spf-link")
+        w = y.find("span", class_="yt-uix-tooltip yt-channel-title-icon-verified yt-sprite")
         title = y.find("a")["title"]
 
         videotime = x.find("span", class_="video-time").get_text().split(':')
@@ -214,17 +214,17 @@ def search_best_video_scrapping(track):
         youtubedetails = {
             "link": link,
             "title": title,
-            "duration": int(videotime[0]) * 60 + int(videotime[1])
+            "duration": int(videotime[0]) * 60 + int(videotime[1]),
+            "channel": z.string,
+            "verified": w
         }
 
         tmp_max_att_point = _attribute_meta_points(track, youtubedetails)
         if tmp_max_att_point > max_attribute_point:
             max_attribute_point = tmp_max_att_point
             best_video = youtubedetails
-            print best_video
-            print tmp_max_att_point
 
-    return None
+    return best_video['link']
 
 
 '''
@@ -239,6 +239,8 @@ def _attribute_meta_points(track, video):
     artist = 1
     name = 0
     duration = 3
+    video_verified = video['verified']
+    fx_channel_name = video['channel'].lower()
     title = re.sub(r'[^\w\s]', '', video['title'].lower())
     title = re.sub(r'\((feat.|)(.*?)\)', '', title).replace('  ', ' ')
     fx_artist_name = re.sub(r'[^\w\s]', '', track[artist].lower())
@@ -260,7 +262,7 @@ def _attribute_meta_points(track, video):
         if 'remix' in fx_track_name and 'remix' in title:
             points += 5
 
-    if re.search(r'[oO]f(f|)ici([a])l [vV]ideo', title) or re.search(r'[vV]ideo [oO]f(f|)ici([a])l', title):
+    if re.search(r'[oO]f(f|)ici(a)l [vV]ideo', title) or re.search(r'[vV]ideo [oO]f(f|)ici([a])l', title):
         if 'remix' in fx_track_name and 'remix' in title:
             points += 5
 
@@ -288,6 +290,13 @@ def _attribute_meta_points(track, video):
 
     if 'instrumental' not in fx_track_name and 'instrumental' in title:
         points -= 10
+    # nombre del canal coincide con el artista
+    if re.sub(r'[\W]+', '', fx_channel_name) == re.sub(r'[\W]+', '', fx_artist_name):
+        points += 5
+    if video_verified is not None:
+        points += 10
+    if fx_channel_name == fx_artist_name + 'vevo':
+        points += 10
 
     dur_diff = int(video['duration'] - track[duration])
     points -= abs(dur_diff)

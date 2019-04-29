@@ -124,22 +124,18 @@ def oauthcallback_google():
 @app.route('/Playlist')
 def create_playlist_yt():
     yt_token = session.get('yt_token')
-    # playlist_id = create_playlist(yt_token, selected_playlist_name)
+    playlist_id = create_playlist(yt_token, selected_playlist_name)
     # pruebas, solo el primer video
     # track_num1 = template_tracks[0]
     # for track in template_tracks:
     # pprint.pprint(track)
     # best_video = search_best_video(yt_token, track)
-    best_video = search_best_video_scrapping(template_tracks[1])
+    best_video_id = search_best_video_scrapping(template_tracks[1])
 
     # video_id = best_video['id']['videoId']
-    # add_video(yt_token, playlist_id, video_id)
+    add_video(yt_token, playlist_id, best_video_id)
 
-    # return 'primer video:\n' + \
-    #       '<p> channel title: ' + str(best_video['snippet']['channelTitle']) + '</p>' + \
-    #       '<p> title: ' + str(best_video['snippet']['title']) + '</p>'
-
-    return 'Hecho'
+    return best_video_id
 
 
 @app.errorhandler(500)
