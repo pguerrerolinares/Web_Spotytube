@@ -1,5 +1,6 @@
 # coding=utf-8
 # Google keys
+from bs4 import BeautifulSoup
 import isodate
 import json
 import pprint
@@ -7,12 +8,13 @@ import re
 import requests
 import urllib
 
-#google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
-#client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
+# google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
+# client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
 prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
 client_id = "990115409802-2ui236qmc7om12c8b2hm65ad8cakmqmb.apps.googleusercontent.com"
 google_secret_key = "U288IasNakebHr3cQDyWYz0v"
+
 
 def request_code_youtube():
     # Enviar una solicitud de autenticacion a google
@@ -170,10 +172,66 @@ def search_best_video(yt_token, track):
             selected_video = [video1, video_points]
 
     if selected_video[1] >= 5:
-        #print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
+        # print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
         video_selected_dict = selected_video[0]
 
     return video_selected_dict
+
+
+def search_best_video_scrapping(track):
+    name = 0
+    artists = 2
+    artist_main = track[artists][0]
+    feat_artist_text = ''
+    for feat_artist in track[artists]:
+        if artist_main is not feat_artist:
+            feat_artist_text += '+' + feat_artist
+
+    full_link = None
+    title = artist_main + '+' + track[name] + '+' + feat_artist_text
+    hd = "&sp=EgIQAQ%253D%253D"
+    t = title.replace('%', '%25').replace(' ', '%20').replace('&', '%26').replace('/', '%2F')
+    url = 'https://www.youtube.com/results?search_query=' + t + hd + '&sp=EgIQAQ%253D%253D'
+    print url
+    items = requests.get(url).content
+
+    items_parse = BeautifulSoup(items, "html.parser")
+
+    pprint.pprint(items_parse)
+    max_attribute_point = -100
+
+    best_video = None
+    for x in items_parse.find_all(
+            "div", {"class": "yt-lockup-dismissable yt-uix-tile"}
+    ):
+        y = x.find("div", class_="yt-lockup-content")
+        link = y.find("a")["href"][-11:]
+
+        title = y.find("a")["title"]
+
+        videotime = x.find("span", class_="video-time").get_text().split(':')
+
+        youtubedetails = {
+            "link": link,
+            "title": title,
+            "duration": int(videotime[0]) * 60 + int(videotime[1])
+        }
+
+        tmp_max_att_point = _attribute_meta_points(track, youtubedetails)
+        if tmp_max_att_point > max_attribute_point:
+            max_attribute_point = tmp_max_att_point
+            best_video = youtubedetails
+            print best_video
+            print tmp_max_att_point
+
+    return None
+
+
+'''
+
+    full_link = "youtube.com" + result
+    print("http://" + full_link)
+    '''
 
 
 def _attribute_meta_points(track, video):
@@ -181,87 +239,55 @@ def _attribute_meta_points(track, video):
     artist = 1
     name = 0
     duration = 3
-    title = re.sub(r'[^\w\s]', '', video['snippet']['title'].lower())
+    title = re.sub(r'[^\w\s]', '', video['title'].lower())
     title = re.sub(r'\((feat.|)(.*?)\)', '', title).replace('  ', ' ')
     fx_artist_name = re.sub(r'[^\w\s]', '', track[artist].lower())
     fx_track_name = re.sub(r'[^\w\s]', '', track[name].lower())
     fx_track_name = re.sub(r'\((feat.|)(.*?)\)', '', fx_track_name).replace('  ', ' ')
-    fx_channel_name = re.sub(r'[^\w\s]', '', video['snippet']['channelTitle'].lower())
 
     # titutlo del video tiene nomre de la canción
     if fx_track_name in title:
-        points += 3
-    else:
-        points -= 30
-
+        points += 20
     # titulo del video tiene el nombre del artista
     if fx_artist_name in title:
-        points += 3
+        points += 10
 
     # titulo del video tiene "official, oficial, ..."
-    if re.search(r'of(f|)ici([ae])l', title):
-        points += 6
+    if re.search(r'[oO]f(f|)ici([a])l', title):
+        points += 5
 
-    if re.search(r'unof(f|)ici([ae])l', title):
-        points -= 6
+    if re.search(r'[oO]f(f|)ici([a])l audio', title) or re.search(r'[aA]udio [oO]f(f|)ici([a])l', title):
+        if 'remix' in fx_track_name and 'remix' in title:
+            points += 5
 
-    if re.search(r'of(f|)ici([ae])l audio', title):
-        if 'remix' not in fx_track_name and 'remix' in title:
-            points += 6
-        else:
-            points += 6
-
-    if re.search(r'of(f|)ici([ae])l video', title):
-        if 'remix' not in fx_track_name and 'remix' in title:
-            points += 2
-        else:
-            points += 20
-
-    if re.search(r'unof(f|)ici([ae])l audio', title):
-        points -= 9
+    if re.search(r'[oO]f(f|)ici([a])l [vV]ideo', title) or re.search(r'[vV]ideo [oO]f(f|)ici([a])l', title):
+        if 'remix' in fx_track_name and 'remix' in title:
+            points += 5
 
     if re.search(r'of(f|)ici([ae])l music (video|)', title):
-        points += 15
+        points += 5
 
-    if re.search(r'unof(f|)ici([ae])l music (video|)', title):
-        points -= 20
-
+    # Ozuna - única
     if re.search(r'{0}(\s|)([:\-])(\s|){1}'.format(fx_artist_name, fx_track_name), title):
-        points += 12
-
-    if re.search(r'{0}(\s|)([:\-])(\s|){1}'.format(fx_track_name, fx_artist_name), title):
-        points += 12
+        points += 5
 
     if 'live' not in fx_track_name and 'live' in title:
-        points -= 40
+        points -= 10
 
     if 'cover' not in fx_track_name and 'cover' in title:
-        points -= 50
+        points -= 10
 
     if 'acoustic' not in fx_track_name and 'acoustic' in title:
-        points -= 30
+        points -= 10
 
     if 'edit' not in fx_track_name and 'edit' in title:
-        points -= 3
+        points -= 5
 
-    if 'remix' not in fx_track_name and 'remix' in title:
-        points -= 6
+    if not re.search(r'[rR]emix', fx_track_name) and re.search(r'[rR]emix', title):
+        points -= 10
 
     if 'instrumental' not in fx_track_name and 'instrumental' in title:
-        points -= 12
-
-    if 'piano sheet' not in fx_track_name and 'piano sheet' in title:
-        points -= 12
-
-    # nombre del canal coincide con el artista
-    if re.sub(r'[\W]+', '', video['snippet']['channelTitle'].lower()) == re.sub(r'[\W]+', '', fx_artist_name):
-        points += 12
-
-    if fx_channel_name == fx_artist_name + ' - topic':
-        points += 9
-
-    if fx_channel_name == fx_artist_name + 'vevo':
-        points += 9
+        points -= 10
 
     dur_diff = int(video['duration'] - track[duration])
     points -= abs(dur_diff)

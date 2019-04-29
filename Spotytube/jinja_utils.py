@@ -45,7 +45,7 @@ def print_tracks(tracks):
         array.append(artist)
 
         album_artists = []
-        for artist in current_track['album']['artists']:
+        for artist in current_track['artists']:
             album_artists.append(artist['name'])
         array.append(album_artists)
 

@@ -12,7 +12,8 @@ from spotify_utils import get_tracks_from_playlist, search_playlists, request_to
     get_playlist
 import requests_toolbelt.adapters.appengine
 from flask import Flask, session, render_template, request, redirect
-from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, add_video, search_best_video
+from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, add_video, search_best_video, \
+    search_best_video_scrapping
 
 # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -77,7 +78,7 @@ def show_tracks(to_search=None):
                 selected_playlist_name = playlist_name
 
         tracks = get_tracks_from_playlist(spotify_token, playlist2search)
-
+        # pprint.pprint(tracks[0])
         global template_tracks
         template_tracks = print_tracks(tracks)
 
@@ -123,16 +124,18 @@ def oauthcallback_google():
 @app.route('/Playlist')
 def create_playlist_yt():
     yt_token = session.get('yt_token')
-    playlist_id = create_playlist(yt_token, selected_playlist_name)
+    # playlist_id = create_playlist(yt_token, selected_playlist_name)
     # pruebas, solo el primer video
-    #track_num1 = template_tracks[0]
-    for track in template_tracks:
-        #pprint.pprint(track)
-        best_video = search_best_video(yt_token, track)
-        video_id = best_video['id']['videoId']
-        add_video(yt_token, playlist_id, video_id)
+    # track_num1 = template_tracks[0]
+    # for track in template_tracks:
+    # pprint.pprint(track)
+    # best_video = search_best_video(yt_token, track)
+    best_video = search_best_video_scrapping(template_tracks[1])
 
-    #return 'primer video:\n' + \
+    # video_id = best_video['id']['videoId']
+    # add_video(yt_token, playlist_id, video_id)
+
+    # return 'primer video:\n' + \
     #       '<p> channel title: ' + str(best_video['snippet']['channelTitle']) + '</p>' + \
     #       '<p> title: ' + str(best_video['snippet']['title']) + '</p>'
 
