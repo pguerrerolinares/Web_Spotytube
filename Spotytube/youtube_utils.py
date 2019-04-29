@@ -51,10 +51,12 @@ def request_token_youtube(code):
         'grant_type': 'authorization_code'
     }
     response = requests.post("https://www.googleapis.com/oauth2/v4/token", headers=headers, data=data)
-    pprint.pprint(response.content)
 
-    json_respuesta = json.loads(response.content)
-    return json_respuesta['access_token']
+    return response.json()
+    #pprint.pprint(response.content)
+
+    #json_respuesta = json.loads(response.content)
+    #return json_respuesta['access_token']
 
 
 def _request(yt_token, url, data):
@@ -112,8 +114,39 @@ def _search_videos_id(yt_token, videos_ids, part='contentDetails', id=None):
     id = ','.join(videos_ids)
     return _get(yt_token, prefix_yt + 'videos', part=part, id=id)['items']
 
-
 def create_playlist(yt_token, name):
+    headers = {'Authorization': 'Bearer {0}'.format(yt_token),
+               'Accept': 'application/json'}
+
+    params = {'part': 'snippet',
+              'mine': 'true'}
+
+    params_encoded = urllib.urlencode(params)
+    response = requests.get('https://www.googleapis.com/youtube/v3/playlists?' + params_encoded,
+                            headers=headers)
+    if response.status_code==200:
+        json_respuesta = json.loads(response.content)
+        items = json_respuesta['items']
+        for item in items:
+            title = item['snippet']['localized']['title']
+            if name == title:
+                id = item['id']
+                delete_playlist(yt_token, id)
+
+    return new_playlist(yt_token, name)
+
+def delete_playlist(yt_token, id):
+    headers = {'Authorization': 'Bearer {0}'.format(yt_token),
+               'Accept': 'application/json'}
+
+    params = {'id': id}
+
+    params_encoded = urllib.urlencode(params)
+    response = requests.delete('https://www.googleapis.com/youtube/v3/playlists?' + params_encoded,
+                            headers=headers)
+    print response.content
+
+def new_playlist(yt_token, name):
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
                'Accept': 'application/json',
                'Content-Type': 'application/json'}
@@ -128,7 +161,7 @@ def create_playlist(yt_token, name):
     json_respuesta = json.loads(response.content)
     print json_respuesta
     return json_respuesta['id']
-
+    #return 'Hola'
 
 def add_video(yt_token, playlist_id, video_id):
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
@@ -220,6 +253,8 @@ def search_best_video_scrapping(track):
         }
 
         tmp_max_att_point = _attribute_meta_points(track, youtubedetails)
+        pprint.pprint(youtubedetails)
+        pprint.pprint(tmp_max_att_point)
         if tmp_max_att_point > max_attribute_point:
             max_attribute_point = tmp_max_att_point
             best_video = youtubedetails
