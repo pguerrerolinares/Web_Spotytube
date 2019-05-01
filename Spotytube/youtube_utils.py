@@ -8,12 +8,12 @@ import re
 import requests
 import urllib
 
-google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
-client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
+#google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
+#client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
 prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
-#client_id = "990115409802-2ui236qmc7om12c8b2hm65ad8cakmqmb.apps.googleusercontent.com"
-#google_secret_key = "U288IasNakebHr3cQDyWYz0v"
+client_id = "990115409802-f5a4s2q58ck8em9cbb34pgr6p62kiutr.apps.googleusercontent.com"
+google_secret_key = "R9IuBW96L9yMtmyyoDS78zj0"
 
 
 def request_code_youtube():
@@ -51,12 +51,10 @@ def request_token_youtube(code):
         'grant_type': 'authorization_code'
     }
     response = requests.post("https://www.googleapis.com/oauth2/v4/token", headers=headers, data=data)
+    pprint.pprint(response.content)
 
+    json_respuesta = json.loads(response.content)
     return response.json()
-    #pprint.pprint(response.content)
-
-    #json_respuesta = json.loads(response.content)
-    #return json_respuesta['access_token']
 
 
 def _request(yt_token, url, data):

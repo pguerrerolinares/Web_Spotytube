@@ -101,18 +101,21 @@ def show_tracks(to_search=None):
 
 @app.route('/LoginGoogle', methods=['GET'])
 def login_google():
+    session['yt_token'] = None
     yt_token = session.get('yt_token')
     if yt_token is None:
         # Si no hay token
         response = request_code_youtube()
-        #print response
+        # print response
         if response.status_code == 200:
-            print response.url
+            #print response.url
             return redirect(str(response.url))
     else:
         if is_token_expired(yt_token):
             session['yt_token'] = None
             return login_google()
+
+
         return create_playlist_yt()
 
 
@@ -122,8 +125,9 @@ def oauthcallback_google():
     code = request.args.get('code')
     yt_token_info = request_token_youtube(code)
     yt_token_info = _add_custom_values_to_token_info(yt_token_info)
-    pprint.pprint(yt_token_info)
+    #pprint.pprint(yt_token_info)
     session['yt_token'] = yt_token_info
+
 
     return create_playlist_yt()
 
@@ -131,13 +135,15 @@ def oauthcallback_google():
 @app.route('/Playlist')
 def create_playlist_yt():
     yt_token = session.get('yt_token')['access_token']
+    #print yt_token
 
     ## PRUEBAS BUSQUEDA DE MEJORES VIDEOS
-    #best_video_id = search_best_video_scrapping(template_tracks[1])
+    best_video_id = search_best_video_scrapping(template_tracks[1])
 
     ## PRUEBA AÑADIR NUEVA PLAYLIST (+1 CANCION)
-    playlist_id = create_playlist(yt_token, selected_playlist_name)
-    best_video_id = search_best_video_scrapping(template_tracks[1])
+    #playlist_id = create_playlist(yt_token, selected_playlist_name)
+    #best_video_id = search_best_video_scrapping(template_tracks[1])
+    #add_video(yt_token, playlist_id, best_video_id)
 
     ## DEFINITIVA
     #playlist_id = create_playlist(yt_token, selected_playlist_name)
@@ -158,6 +164,7 @@ def server_error(e):
 # [Métodos para renovación de cookie]
 def is_token_expired(token_info):
     now = int(time.time())
+    print token_info
     return token_info['expires_at'] - now < 60
 
 
