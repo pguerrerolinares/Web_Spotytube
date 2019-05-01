@@ -140,7 +140,7 @@ body {
 /* Show songs */
 .rectangle {
     /*background-color: #555;*/
-    width: 90%;
+    width: 80%;
     height: 120px;
     background: #000000;
     -webkit-border-radius: 5px;
@@ -200,11 +200,11 @@ audio {
     background-color: #4CAF50;
     margin-top: 10%;
     margin-bottom: 10%;
-    margin-right: 15%;
+    margin-right: 10%;
 }
 
 .columnButtons {
     float: left;
     width: 30%;
-    padding-right: 1%;
+    /*padding-right: 1%;*/
 }
