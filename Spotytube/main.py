@@ -138,20 +138,25 @@ def create_playlist_yt():
     #print yt_token
 
     ## PRUEBAS BUSQUEDA DE MEJORES VIDEOS
-    best_video_id = search_best_video_scrapping(template_tracks[1])
+    #best_video_id = search_best_video_scrapping(template_tracks[1])
 
     ## PRUEBA AÑADIR NUEVA PLAYLIST (+1 CANCION)
     #playlist_id = create_playlist(yt_token, selected_playlist_name)
-    #best_video_id = search_best_video_scrapping(template_tracks[1])
+    #best_video_id = search_best_video(yt_token, template_tracks[1])
+    #pprint.pprint(best_video_id)
     #add_video(yt_token, playlist_id, best_video_id)
 
     ## DEFINITIVA
-    #playlist_id = create_playlist(yt_token, selected_playlist_name)
-    #for track in template_tracks:
-    #    best_video_id = search_best_video_scrapping(track)
-    #    add_video(yt_token, playlist_id, best_video_id)
+    playlist_id = create_playlist(yt_token, selected_playlist_name)
+    if playlist_id == 0:
+        return render_template('base.html', template_selector=0, limit=1)
 
-    return render_template('base.html', template_selector=0)
+    else:
+        for track in template_tracks:
+            best_video_id = search_best_video(yt_token, track)
+            add_video(yt_token, playlist_id, best_video_id)
+
+        return render_template('base.html', template_selector=0)
 
 
 @app.errorhandler(500)

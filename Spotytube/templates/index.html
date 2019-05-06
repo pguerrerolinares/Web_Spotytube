@@ -7,6 +7,9 @@
         return '/ShowTracks?id=' + idSong;
 
     }
+    function mensajeError(){
+        window.alert('Limite de peticiones excedido')
+    }
 </script>
 
 
@@ -63,5 +66,10 @@
             {% endfor %}
         {% endif %}
 
+        {%  if limit == 1%}
+            <script>
+            window.alert('Limite de peticiones excedido')
+            </script>
+        {% endif %}
     </div>
 </div>
