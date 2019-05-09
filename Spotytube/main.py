@@ -13,7 +13,7 @@ from spotify_utils import get_tracks_from_playlist, search_playlists, request_to
 import requests_toolbelt.adapters.appengine
 from flask import Flask, session, render_template, request, redirect
 from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, \
-    search_best_video, add_video, search_video
+    search_best_video, add_video, search_video, search_best_video_scrapping
 
 # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -107,9 +107,7 @@ def login_google():
     if yt_token is None:
         # Si no hay token
         response = request_code_youtube()
-        # print response
         if response.status_code == 200:
-            # print response.url
             return redirect(str(response.url))
     else:
         if is_token_expired(yt_token):
@@ -125,7 +123,6 @@ def oauthcallback_google():
     code = request.args.get('code')
     yt_token_info = request_token_youtube(code)
     yt_token_info = _add_custom_values_to_token_info(yt_token_info)
-    # pprint.pprint(yt_token_info)
     session['yt_token'] = yt_token_info
 
     return create_playlist_yt()
@@ -134,36 +131,25 @@ def oauthcallback_google():
 @app.route('/Playlist')
 def create_playlist_yt():
     yt_token = session.get('yt_token')['access_token']
-    # print yt_token
 
-    ## PRUEBAS BUSQUEDA DE MEJORES VIDEOS
-    # best_video_id = search_best_video_scrapping(template_tracks[1])
+    ## UTILIZANDO BEAUTIFUL SOUP
+    #playlist_id = create_playlist(yt_token, selected_playlist_name)
+    #if playlist_id == 0:
+    #    return render_template('base.html', template_selector=0, limit=1)
+    #else:
+    #    for track in template_tracks:
+    #        best_video_id = search_best_video_scrapping(track)
+    #        add_video(yt_token, playlist_id, best_video_id)
 
-    ## PRUEBA AÑADIR NUEVA PLAYLIST (+1 CANCION)
-
-    # playlist_id = create_playlist(yt_token, selected_playlist_name)
-    # best_video_id = search_best_video_scrapping(template_tracks[1])
-    # add_video(yt_token, playlist_id, best_video_id)
 
     ## DEFINITIVA
-    # playlist_id = create_playlist(yt_token, selected_playlist_name)
-    # for track in template_tracks:
-    #    best_video_id = search_best_video_scrapping(track)
-    #    add_video(yt_token, playlist_id, best_video_id)
-
-    # playlist_id = create_playlist(yt_token, selected_playlist_name)
-    # best_video_id = search_best_video(yt_token, template_tracks[1])
-    # pprint.pprint(best_video_id)
-    # add_video(yt_token, playlist_id, best_video_id)
-
-    # DEFINITIVA
     playlist_id = create_playlist(yt_token, selected_playlist_name)
     if playlist_id == 0:
         return render_template('base.html', template_selector=0, limit=1)
     else:
         for track in template_tracks:
             best_video_id = search_video(yt_token, track)
-        add_video(yt_token, playlist_id, best_video_id)
+            add_video(yt_token, playlist_id, best_video_id)
 
     return render_template('base.html', template_selector=0)
 
@@ -190,8 +176,6 @@ def _add_custom_values_to_token_info(token_info):
 def _get_access_token():
     token_info = request_token_spotify()
     token_info = _add_custom_values_to_token_info(token_info)
-
-    # pprint.pprint(token_info)
     token_info = token_info
 
     return token_info

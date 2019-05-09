@@ -13,8 +13,11 @@ import urllib
 # client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
 prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
-client_id = "990115409802-f5a4s2q58ck8em9cbb34pgr6p62kiutr.apps.googleusercontent.com"
-google_secret_key = "R9IuBW96L9yMtmyyoDS78zj0"
+#client_id = "990115409802-f5a4s2q58ck8em9cbb34pgr6p62kiutr.apps.googleusercontent.com"
+#google_secret_key = "R9IuBW96L9yMtmyyoDS78zj0"
+
+client_id = "445109163861-2a85e6e646v47qunavf9v1hdgte0l9bt.apps.googleusercontent.com"
+google_secret_key = "cl086yVmsdgQutQtnNNR3q72"
 
 
 def request_code_youtube():
@@ -160,6 +163,7 @@ def new_playlist(yt_token, name):
     response = requests.post(prefix_yt + 'playlists?' + params_encoded,
                              headers=headers, data=jsondata)
     if response.status_code == 403:
+        pprint.pprint(response.content)
         return 0
     else:
         json_respuesta = json.loads(response.content)
@@ -188,7 +192,8 @@ def search_video(yt_token, track):
     artist = 1
     name = 0
     query = '{0} - {1}'.format(track[artist], track[name])
-    return _search_video_query(yt_token, query)
+    info = _search_video_query(yt_token, query)
+    return info[0]['id']['videoId']
 
 
 # YOUTUBE API
@@ -216,7 +221,6 @@ def search_best_video(yt_token, track):
             selected_video = [video1, video_points]
 
     if selected_video[1] >= 5:
-        # print 'Video "{0}" tiene "{1}" puntos'.format(selected_video[0]['snippet']['title'], selected_video[1])
         video_selected_dict = selected_video[0]
 
     return video_selected_dict
