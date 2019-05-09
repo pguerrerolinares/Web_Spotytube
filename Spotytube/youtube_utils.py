@@ -20,6 +20,7 @@ google_secret_key = "R9IuBW96L9yMtmyyoDS78zj0"
 def request_code_youtube():
     # Enviar una solicitud de autenticacion a google
     redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
+
     # redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
 
     server = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -40,7 +41,6 @@ def request_code_youtube():
 def request_token_youtube(code):
     redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
     # redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
-
     headers = {
         'Host': 'www.googleapis.com',
         'Content-Type': 'application/x-www-form-urlencoded'}
