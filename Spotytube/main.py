@@ -12,8 +12,7 @@ from spotify_utils import get_tracks_from_playlist, search_playlists, request_to
     get_playlist
 import requests_toolbelt.adapters.appengine
 from flask import Flask, session, render_template, request, redirect
-from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, add_video, search_best_video, \
-    search_best_video_scrapping, delete_playlist
+from youtube_utils import request_code_youtube, request_token_youtube, search_best_video_scrapping
 
 # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -108,13 +107,12 @@ def login_google():
         response = request_code_youtube()
         # print response
         if response.status_code == 200:
-            #print response.url
+            # print response.url
             return redirect(str(response.url))
     else:
         if is_token_expired(yt_token):
             session['yt_token'] = None
             return login_google()
-
 
         return create_playlist_yt()
 
@@ -125,9 +123,8 @@ def oauthcallback_google():
     code = request.args.get('code')
     yt_token_info = request_token_youtube(code)
     yt_token_info = _add_custom_values_to_token_info(yt_token_info)
-    #pprint.pprint(yt_token_info)
+    # pprint.pprint(yt_token_info)
     session['yt_token'] = yt_token_info
-
 
     return create_playlist_yt()
 
@@ -135,19 +132,19 @@ def oauthcallback_google():
 @app.route('/Playlist')
 def create_playlist_yt():
     yt_token = session.get('yt_token')['access_token']
-    #print yt_token
+    # print yt_token
 
     ## PRUEBAS BUSQUEDA DE MEJORES VIDEOS
     best_video_id = search_best_video_scrapping(template_tracks[1])
 
     ## PRUEBA AÑADIR NUEVA PLAYLIST (+1 CANCION)
-    #playlist_id = create_playlist(yt_token, selected_playlist_name)
-    #best_video_id = search_best_video_scrapping(template_tracks[1])
-    #add_video(yt_token, playlist_id, best_video_id)
+    # playlist_id = create_playlist(yt_token, selected_playlist_name)
+    # best_video_id = search_best_video_scrapping(template_tracks[1])
+    # add_video(yt_token, playlist_id, best_video_id)
 
     ## DEFINITIVA
-    #playlist_id = create_playlist(yt_token, selected_playlist_name)
-    #for track in template_tracks:
+    # playlist_id = create_playlist(yt_token, selected_playlist_name)
+    # for track in template_tracks:
     #    best_video_id = search_best_video_scrapping(track)
     #    add_video(yt_token, playlist_id, best_video_id)
 
@@ -164,7 +161,7 @@ def server_error(e):
 # [Métodos para renovación de cookie]
 def is_token_expired(token_info):
     now = int(time.time())
-    print token_info
+    # print token_info
     return token_info['expires_at'] - now < 60
 
 
@@ -177,10 +174,11 @@ def _get_access_token():
     token_info = request_token_spotify()
     token_info = _add_custom_values_to_token_info(token_info)
 
-    #pprint.pprint(token_info)
+    # pprint.pprint(token_info)
     token_info = token_info
 
     return token_info
+
 
 #
 def is_spotify(raw_song):

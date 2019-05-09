@@ -1,5 +1,6 @@
 # coding=utf-8
 # Google keys
+import logging
 from bs4 import BeautifulSoup
 import isodate
 import json
@@ -8,8 +9,8 @@ import re
 import requests
 import urllib
 
-#google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
-#client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
+# google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
+# client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
 prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
 client_id = "990115409802-f5a4s2q58ck8em9cbb34pgr6p62kiutr.apps.googleusercontent.com"
@@ -39,6 +40,7 @@ def request_code_youtube():
 def request_token_youtube(code):
     # Get token
     redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
+    # redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
 
     headers = {
         'Host': 'www.googleapis.com',
@@ -51,9 +53,8 @@ def request_token_youtube(code):
         'grant_type': 'authorization_code'
     }
     response = requests.post("https://www.googleapis.com/oauth2/v4/token", headers=headers, data=data)
-    pprint.pprint(response.content)
+    # pprint.pprint(response.content)
 
-    json_respuesta = json.loads(response.content)
     return response.json()
 
 
@@ -112,6 +113,7 @@ def _search_videos_id(yt_token, videos_ids, part='contentDetails', id=None):
     id = ','.join(videos_ids)
     return _get(yt_token, prefix_yt + 'videos', part=part, id=id)['items']
 
+
 def create_playlist(yt_token, name):
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
                'Accept': 'application/json'}
@@ -122,7 +124,7 @@ def create_playlist(yt_token, name):
     params_encoded = urllib.urlencode(params)
     response = requests.get('https://www.googleapis.com/youtube/v3/playlists?' + params_encoded,
                             headers=headers)
-    if response.status_code==200:
+    if response.status_code == 200:
         json_respuesta = json.loads(response.content)
         items = json_respuesta['items']
         for item in items:
@@ -133,6 +135,7 @@ def create_playlist(yt_token, name):
 
     return new_playlist(yt_token, name)
 
+
 def delete_playlist(yt_token, id):
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
                'Accept': 'application/json'}
@@ -141,8 +144,9 @@ def delete_playlist(yt_token, id):
 
     params_encoded = urllib.urlencode(params)
     response = requests.delete('https://www.googleapis.com/youtube/v3/playlists?' + params_encoded,
-                            headers=headers)
+                               headers=headers)
     print response.content
+
 
 def new_playlist(yt_token, name):
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
@@ -159,7 +163,8 @@ def new_playlist(yt_token, name):
     json_respuesta = json.loads(response.content)
     print json_respuesta
     return json_respuesta['id']
-    #return 'Hola'
+    # return 'Hola'
+
 
 def add_video(yt_token, playlist_id, video_id):
     headers = {'Authorization': 'Bearer {0}'.format(yt_token),
@@ -223,10 +228,16 @@ def search_best_video_scrapping(track):
     hd = "&sp=EgIQAQ%253D%253D"
     t = title.replace('%', '%25').replace(' ', '%20').replace('&', '%26').replace('/', '%2F')
     url = 'https://www.youtube.com/results?search_query=' + t + hd + '&sp=EgIQAQ%253D%253D'
-    items = requests.get(url).content
+    headers = {'Accept-Encoding': 'gzip',
+               'Content-Type': 'text/html; charset=UTF-8'}
+    response = requests.get(url, headers=headers)
+    response.headers['Content-Type'] = 'text/html'
 
-    items_parse = BeautifulSoup(items, "html.parser")
-
+    items = response.content
+    cabeza = response.headers
+    print cabeza
+    items_parse = BeautifulSoup(items, "html.parser", from_encoding='utf-8')
+    print(items_parse)
     max_attribute_point = -100
 
     best_video = None
