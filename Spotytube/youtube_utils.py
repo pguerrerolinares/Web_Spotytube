@@ -18,8 +18,8 @@ google_secret_key = "R9IuBW96L9yMtmyyoDS78zj0"
 
 def request_code_youtube():
     # Enviar una solicitud de autenticacion a google
-    #redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
-    redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
+    redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
+    #redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
 
     server = 'https://accounts.google.com/o/oauth2/v2/auth'
 
@@ -38,8 +38,8 @@ def request_code_youtube():
 
 def request_token_youtube(code):
     # Get token
-    #redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
-    redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
+    redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
+    #redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
 
     headers = {
         'Host': 'www.googleapis.com',
@@ -85,7 +85,7 @@ def _get(yt_token, url, **kwargs):
     return _request(yt_token, url, kwargs)
 
 
-def _search_video_query(yt_token, query, part='snippet,id', order='relevance', type='video', maxResults=10):
+def _search_video_query(yt_token, query, part='snippet,id', order='relevance', type='video', maxResults=1):
     """
     :param yt_token:
     :param query:
