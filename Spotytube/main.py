@@ -12,7 +12,8 @@ from spotify_utils import get_tracks_from_playlist, search_playlists, request_to
     get_playlist
 import requests_toolbelt.adapters.appengine
 from flask import Flask, session, render_template, request, redirect
-from youtube_utils import request_code_youtube, request_token_youtube, search_best_video_scrapping
+from youtube_utils import request_code_youtube, request_token_youtube, create_playlist, \
+    search_best_video, add_video, search_video
 
 # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -75,16 +76,17 @@ def show_tracks(to_search=None):
             if playlist[2] == playlist2search:
                 playlist_name = playlist[0]
                 selected_playlist_name = playlist_name
-
         tracks = get_tracks_from_playlist(spotify_token, playlist2search)
-        # pprint.pprint(tracks[0])
+
         global template_tracks
         template_tracks = print_tracks(tracks)
 
     else:
         if is_spotify(to_search):
             playlist2search = get_playlist(spotify_token, to_search)
-            if playlist2search['error'] is not None:
+            print playlist2search
+
+            if len(playlist2search) == 1:
                 return index()
             else:
                 playlist_name = playlist2search['name']
@@ -135,9 +137,10 @@ def create_playlist_yt():
     # print yt_token
 
     ## PRUEBAS BUSQUEDA DE MEJORES VIDEOS
-    best_video_id = search_best_video_scrapping(template_tracks[1])
+    # best_video_id = search_best_video_scrapping(template_tracks[1])
 
     ## PRUEBA AÑADIR NUEVA PLAYLIST (+1 CANCION)
+
     # playlist_id = create_playlist(yt_token, selected_playlist_name)
     # best_video_id = search_best_video_scrapping(template_tracks[1])
     # add_video(yt_token, playlist_id, best_video_id)
@@ -147,6 +150,20 @@ def create_playlist_yt():
     # for track in template_tracks:
     #    best_video_id = search_best_video_scrapping(track)
     #    add_video(yt_token, playlist_id, best_video_id)
+
+    # playlist_id = create_playlist(yt_token, selected_playlist_name)
+    # best_video_id = search_best_video(yt_token, template_tracks[1])
+    # pprint.pprint(best_video_id)
+    # add_video(yt_token, playlist_id, best_video_id)
+
+    # DEFINITIVA
+    playlist_id = create_playlist(yt_token, selected_playlist_name)
+    if playlist_id == 0:
+        return render_template('base.html', template_selector=0, limit=1)
+    else:
+        for track in template_tracks:
+            best_video_id = search_video(yt_token, track)
+        add_video(yt_token, playlist_id, best_video_id)
 
     return render_template('base.html', template_selector=0)
 
