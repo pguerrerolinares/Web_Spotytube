@@ -9,22 +9,25 @@ import re
 import requests
 import urllib
 
-# google_secret_key = "1FfMRgteyw6T8b46872U0dgb"
-# client_id = "990115409802-q9o1n9f5hab5lrlg84l21u2si23m90ph.apps.googleusercontent.com"
+
 prefix_yt = "https://www.googleapis.com/youtube/v3/"
 
-#client_id = "990115409802-f5a4s2q58ck8em9cbb34pgr6p62kiutr.apps.googleusercontent.com"
-#google_secret_key = "R9IuBW96L9yMtmyyoDS78zj0"
+# Credenciales spotytube2
+google_secret_key = "5paL5FVc5alGlFSyaEmJL9ry"
+client_id = "540815517206-5d831pjv09c3rq9l30ugkcavcephqtks.apps.googleusercontent.com"
 
-client_id = "445109163861-2a85e6e646v47qunavf9v1hdgte0l9bt.apps.googleusercontent.com"
-google_secret_key = "cl086yVmsdgQutQtnNNR3q72"
+
+# Credenciales app gae2019-23609
+#client_id = "445109163861-2a85e6e646v47qunavf9v1hdgte0l9bt.apps.googleusercontent.com"
+#google_secret_key = "cl086yVmsdgQutQtnNNR3q72"
 
 
 def request_code_youtube():
     # Enviar una solicitud de autenticacion a google
-    redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
+    #redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
+    #redirect_uri = 'http://gae2019-23609.appspot.com/oauth2callback'
 
-    # redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
+    redirect_uri = 'http://spotytube2.appspot.com/oauth2callback'
 
     server = 'https://accounts.google.com/o/oauth2/v2/auth'
 
@@ -42,8 +45,10 @@ def request_code_youtube():
 
 
 def request_token_youtube(code):
-    redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
-    # redirect_uri = 'http://spotytube.appspot.com/oauth2callback'
+    #redirect_uri = 'http://localhost:8080/oauth2callback'  # Localhost
+    #redirect_uri = 'http://gae2019-23609.appspot.com/oauth2callback'
+
+    redirect_uri = 'http://spotytube2.appspot.com/oauth2callback'
     headers = {
         'Host': 'www.googleapis.com',
         'Content-Type': 'application/x-www-form-urlencoded'}
@@ -196,7 +201,7 @@ def search_video(yt_token, track):
     return info[0]['id']['videoId']
 
 
-# YOUTUBE API
+## YOUTUBE API ##
 def search_best_video(yt_token, track):
     artist = 1
     name = 0

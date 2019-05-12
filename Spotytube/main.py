@@ -94,6 +94,8 @@ def show_tracks(to_search=None):
                 tracks = get_tracks_from_playlist(spotify_token, playlist_id)
                 global template_tracks
                 template_tracks = print_tracks(tracks)
+                selected_playlist_name = playlist_name
+
         else:
             return index()
     return render_template('base.html', tracks_names=template_tracks, playlist_name=playlist_name,
